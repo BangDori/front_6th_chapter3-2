@@ -1,4 +1,5 @@
 import {
+  Button,
   Checkbox,
   FormControl,
   FormControlLabel,
@@ -10,23 +11,11 @@ import {
   Tooltip,
   Typography,
 } from '@mui/material';
-import { Button } from '@mui/material';
-import { ChangeEvent } from 'react';
+import React from 'react';
 
-import { Event, RepeatType } from '../../types';
-import { getTimeErrorMessage } from '../../utils/timeValidation';
+import { Event, RepeatType } from '../types';
 
-const categories = ['업무', '개인', '가족', '기타'];
-
-const notificationOptions = [
-  { value: 1, label: '1분 전' },
-  { value: 10, label: '10분 전' },
-  { value: 60, label: '1시간 전' },
-  { value: 120, label: '2시간 전' },
-  { value: 1440, label: '1일 전' },
-];
-
-interface EventFormProps {
+interface FormProps {
   title: string;
   setTitle: (title: string) => void;
   date: string;
@@ -52,43 +41,54 @@ interface EventFormProps {
   startTimeError: string | null;
   endTimeError: string | null;
   editingEvent: Event | null;
-  handleStartTimeChange: (e: ChangeEvent<HTMLInputElement>) => void;
-  handleEndTimeChange: (e: ChangeEvent<HTMLInputElement>) => void;
-  onSubmit: () => void;
+  handleStartTimeChange: (e: React.ChangeEvent<HTMLInputElement>) => void;
+  handleEndTimeChange: (e: React.ChangeEvent<HTMLInputElement>) => void;
+  addOrUpdateEvent: () => void;
 }
 
-export const EventForm = ({
-  title,
-  setTitle,
-  date,
-  setDate,
-  startTime,
-  endTime,
-  description,
-  setDescription,
-  location,
-  setLocation,
-  category,
-  setCategory,
-  isRepeating,
-  setIsRepeating,
-  repeatType,
-  setRepeatType,
-  repeatInterval,
-  setRepeatInterval,
-  repeatEndDate,
-  setRepeatEndDate,
-  notificationTime,
-  setNotificationTime,
-  startTimeError,
-  endTimeError,
-  editingEvent,
-  handleStartTimeChange,
-  handleEndTimeChange,
-  onSubmit,
-}: EventFormProps) => {
+export const EventFormPanel = ({ formProps }: { formProps: FormProps }) => {
+  const {
+    title,
+    setTitle,
+    date,
+    setDate,
+    startTime,
+    endTime,
+    description,
+    setDescription,
+    location,
+    setLocation,
+    category,
+    setCategory,
+    isRepeating,
+    setIsRepeating,
+    repeatType,
+    setRepeatType,
+    repeatInterval,
+    setRepeatInterval,
+    repeatEndDate,
+    setRepeatEndDate,
+    notificationTime,
+    setNotificationTime,
+    startTimeError,
+    endTimeError,
+    editingEvent,
+    handleStartTimeChange,
+    handleEndTimeChange,
+    addOrUpdateEvent,
+  } = formProps;
+
+  const categories = ['업무', '개인', '가족', '기타'];
+  const notificationOptions = [
+    { value: 1, label: '1분 전' },
+    { value: 10, label: '10분 전' },
+    { value: 60, label: '1시간 전' },
+    { value: 120, label: '2시간 전' },
+    { value: 1440, label: '1일 전' },
+  ];
+
   return (
-    <Stack spacing={2} sx={{ width: '20%' }}>
+    <Stack spacing={2} sx={{ width: '25%', minWidth: '300px' }}>
       <Typography variant="h4">{editingEvent ? '일정 수정' : '일정 추가'}</Typography>
 
       <FormControl fullWidth>
@@ -122,7 +122,6 @@ export const EventForm = ({
               type="time"
               value={startTime}
               onChange={handleStartTimeChange}
-              onBlur={() => getTimeErrorMessage(startTime, endTime)}
               error={!!startTimeError}
             />
           </Tooltip>
@@ -136,7 +135,6 @@ export const EventForm = ({
               type="time"
               value={endTime}
               onChange={handleEndTimeChange}
-              onBlur={() => getTimeErrorMessage(startTime, endTime)}
               error={!!endTimeError}
             />
           </Tooltip>
@@ -164,13 +162,13 @@ export const EventForm = ({
       </FormControl>
 
       <FormControl fullWidth>
-        <FormLabel id="category-label">카테고리</FormLabel>
+        <FormLabel htmlFor="category-label">카테고리</FormLabel>
         <Select
+          labelId="category-label"
           id="category"
           size="small"
           value={category}
           onChange={(e) => setCategory(e.target.value)}
-          aria-labelledby="category-label"
           aria-label="카테고리"
         >
           {categories.map((cat) => (
@@ -190,6 +188,50 @@ export const EventForm = ({
         />
       </FormControl>
 
+      {isRepeating && (
+        <Stack spacing={2}>
+          <FormControl fullWidth>
+            <FormLabel id="repeat-type">반복 유형</FormLabel>
+            <Select
+              labelId="repeat-type"
+              id="repeat-type"
+              size="small"
+              value={repeatType}
+              onChange={(e) => setRepeatType(e.target.value as RepeatType)}
+            >
+              <MenuItem value="daily">매일</MenuItem>
+              <MenuItem value="weekly">매주</MenuItem>
+              <MenuItem value="monthly">매월</MenuItem>
+              <MenuItem value="yearly">매년</MenuItem>
+            </Select>
+          </FormControl>
+          <Stack direction="row" spacing={2}>
+            <FormControl fullWidth>
+              <FormLabel htmlFor="repeat-interval">반복 간격</FormLabel>
+              <TextField
+                id="repeat-interval"
+                size="small"
+                type="number"
+                value={repeatInterval}
+                onChange={(e) => setRepeatInterval(Number(e.target.value))}
+                inputProps={{ min: 1 }}
+              />
+            </FormControl>
+            <FormControl fullWidth>
+              <FormLabel htmlFor="repeat-end">반복 종료일</FormLabel>
+              <TextField
+                id="repeat-end"
+                size="small"
+                type="date"
+                value={repeatEndDate}
+                onChange={(e) => setRepeatEndDate(e.target.value)}
+                inputProps={{ max: '2025-10-30' }}
+              />
+            </FormControl>
+          </Stack>
+        </Stack>
+      )}
+
       <FormControl fullWidth>
         <FormLabel htmlFor="notification">알림 설정</FormLabel>
         <Select
@@ -206,49 +248,9 @@ export const EventForm = ({
         </Select>
       </FormControl>
 
-      {/* ! 반복은 8주차 과제에 포함됩니다. 구현하고 싶어도 참아주세요~ */}
-      {isRepeating && (
-        <Stack spacing={2}>
-          <FormControl fullWidth>
-            <FormLabel>반복 유형</FormLabel>
-            <Select
-              size="small"
-              value={repeatType}
-              onChange={(e) => setRepeatType(e.target.value as RepeatType)}
-            >
-              <MenuItem value="daily">매일</MenuItem>
-              <MenuItem value="weekly">매주</MenuItem>
-              <MenuItem value="monthly">매월</MenuItem>
-              <MenuItem value="yearly">매년</MenuItem>
-            </Select>
-          </FormControl>
-          <Stack direction="row" spacing={2}>
-            <FormControl fullWidth>
-              <FormLabel>반복 간격</FormLabel>
-              <TextField
-                size="small"
-                type="number"
-                value={repeatInterval}
-                onChange={(e) => setRepeatInterval(Number(e.target.value))}
-                slotProps={{ htmlInput: { min: 1 } }}
-              />
-            </FormControl>
-            <FormControl fullWidth>
-              <FormLabel>반복 종료일</FormLabel>
-              <TextField
-                size="small"
-                type="date"
-                value={repeatEndDate}
-                onChange={(e) => setRepeatEndDate(e.target.value)}
-              />
-            </FormControl>
-          </Stack>
-        </Stack>
-      )}
-
       <Button
         data-testid="event-submit-button"
-        onClick={onSubmit}
+        onClick={addOrUpdateEvent}
         variant="contained"
         color="primary"
       >

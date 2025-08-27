@@ -1,4 +1,6 @@
-import { Notifications, Delete, Edit } from '@mui/icons-material';
+import Delete from '@mui/icons-material/Delete';
+import Edit from '@mui/icons-material/Edit';
+import Notifications from '@mui/icons-material/Notifications';
 import {
   Box,
   FormControl,
@@ -9,26 +11,28 @@ import {
   Typography,
 } from '@mui/material';
 
-import { Event } from '../../types';
-import { getNotificationText, getRepeatText } from '../../utils/eventDisplayUtils';
+import { Event } from '../types';
 
-interface EventListProps {
+interface ListProps {
   searchTerm: string;
   setSearchTerm: (searchTerm: string) => void;
   filteredEvents: Event[];
   notifiedEvents: string[];
-  onEditEvent: (event: Event) => void;
-  onDeleteEvent: (eventId: string) => void;
+  editEvent: (event: Event) => void;
+  deleteEvent: (eventId: string) => void;
 }
 
-export const EventList = ({
-  searchTerm,
-  setSearchTerm,
-  filteredEvents,
-  notifiedEvents,
-  onEditEvent,
-  onDeleteEvent,
-}: EventListProps) => {
+export const EventListPanel = ({ listProps }: { listProps: ListProps }) => {
+  const { searchTerm, setSearchTerm, filteredEvents, notifiedEvents, editEvent, deleteEvent } =
+    listProps;
+  const notificationOptions = [
+    { value: 1, label: '1분 전' },
+    { value: 10, label: '10분 전' },
+    { value: 60, label: '1시간 전' },
+    { value: 120, label: '2시간 전' },
+    { value: 1440, label: '1일 전' },
+  ];
+
   return (
     <Stack
       data-testid="event-list"
@@ -49,7 +53,7 @@ export const EventList = ({
       {filteredEvents.length === 0 ? (
         <Typography>검색 결과가 없습니다.</Typography>
       ) : (
-        filteredEvents.map((event) => (
+        filteredEvents.map((event: Event) => (
           <Box key={event.id} sx={{ border: 1, borderRadius: 2, p: 3, width: '100%' }}>
             <Stack direction="row" justifyContent="space-between">
               <Stack>
@@ -70,15 +74,25 @@ export const EventList = ({
                 <Typography>{event.location}</Typography>
                 <Typography>카테고리: {event.category}</Typography>
                 {event.repeat.type !== 'none' && (
-                  <Typography>{getRepeatText(event.repeat)}</Typography>
+                  <Typography>
+                    반복: {event.repeat.interval}
+                    {event.repeat.type === 'daily' && '일'}
+                    {event.repeat.type === 'weekly' && '주'}
+                    {event.repeat.type === 'monthly' && '월'}
+                    {event.repeat.type === 'yearly' && '년'}
+                    마다
+                    {event.repeat.endDate && ` (종료: ${event.repeat.endDate})`}
+                  </Typography>
                 )}
-                <Typography>알림: {getNotificationText(event.notificationTime)}</Typography>
+                <Typography>
+                  알림: {notificationOptions.find((o) => o.value === event.notificationTime)?.label}
+                </Typography>
               </Stack>
               <Stack>
-                <IconButton aria-label="Edit event" onClick={() => onEditEvent(event)}>
+                <IconButton aria-label="Edit event" onClick={() => editEvent(event)}>
                   <Edit />
                 </IconButton>
-                <IconButton aria-label="Delete event" onClick={() => onDeleteEvent(event.id)}>
+                <IconButton aria-label="Delete event" onClick={() => deleteEvent(event.id)}>
                   <Delete />
                 </IconButton>
               </Stack>
