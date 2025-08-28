@@ -27,27 +27,17 @@ import {
   getWeeksAtMonth,
 } from '../utils/dateUtils';
 
-interface CalendarViewProps {
-  view: 'week' | 'month';
-  setView: (view: 'week' | 'month') => void;
-  currentDate: Date;
-  navigate: (direction: 'prev' | 'next') => void;
-  holidays: { [key: string]: string };
-  filteredEvents: Event[];
-  notifiedEvents: string[];
-  editEvent: (event: Event) => void;
-}
-
-export const CalendarView = ({
-  view,
-  setView,
-  currentDate,
-  navigate,
-  holidays,
-  filteredEvents,
-  notifiedEvents,
-  editEvent,
-}: CalendarViewProps) => {
+export const CalendarView = ({ viewProps }) => {
+  const {
+    view,
+    setView,
+    currentDate,
+    navigate,
+    holidays,
+    filteredEvents,
+    notifiedEvents,
+    editEvent,
+  } = viewProps;
   const weekDays = ['일', '월', '화', '수', '목', '금', '토'];
 
   const renderWeekView = () => {
@@ -111,8 +101,12 @@ export const CalendarView = ({
                             onClick={() => editEvent(event)}
                           >
                             <Stack direction="row" spacing={1} alignItems="center">
-                              {isNotified && <Notifications fontSize="small" />}
-                              {isRecurring && <Repeat fontSize="small" />}
+                              {isNotified && (
+                                <Notifications data-testid="notification-icon" fontSize="small" />
+                              )}
+                              {isRecurring && (
+                                <Repeat data-testid="recurring-icon" fontSize="small" />
+                              )}
                               <Typography
                                 variant="caption"
                                 noWrap

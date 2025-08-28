@@ -13,16 +13,7 @@ import {
 
 import { Event } from '../types';
 
-interface ListProps {
-  searchTerm: string;
-  setSearchTerm: (searchTerm: string) => void;
-  filteredEvents: Event[];
-  notifiedEvents: string[];
-  editEvent: (event: Event) => void;
-  deleteEvent: (eventId: string) => void;
-}
-
-export const EventListPanel = ({ listProps }: { listProps: ListProps }) => {
+export const EventListPanel = ({ listProps }) => {
   const { searchTerm, setSearchTerm, filteredEvents, notifiedEvents, editEvent, deleteEvent } =
     listProps;
   const notificationOptions = [

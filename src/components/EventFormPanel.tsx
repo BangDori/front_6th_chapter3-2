@@ -11,42 +11,10 @@ import {
   Tooltip,
   Typography,
 } from '@mui/material';
-import React from 'react';
 
-import { Event, RepeatType } from '../types';
+import { RepeatType } from '../types';
 
-interface FormProps {
-  title: string;
-  setTitle: (title: string) => void;
-  date: string;
-  setDate: (date: string) => void;
-  startTime: string;
-  endTime: string;
-  description: string;
-  setDescription: (description: string) => void;
-  location: string;
-  setLocation: (location: string) => void;
-  category: string;
-  setCategory: (category: string) => void;
-  isRepeating: boolean;
-  setIsRepeating: (isRepeating: boolean) => void;
-  repeatType: RepeatType;
-  setRepeatType: (repeatType: RepeatType) => void;
-  repeatInterval: number;
-  setRepeatInterval: (repeatInterval: number) => void;
-  repeatEndDate: string;
-  setRepeatEndDate: (repeatEndDate: string) => void;
-  notificationTime: number;
-  setNotificationTime: (notificationTime: number) => void;
-  startTimeError: string | null;
-  endTimeError: string | null;
-  editingEvent: Event | null;
-  handleStartTimeChange: (e: React.ChangeEvent<HTMLInputElement>) => void;
-  handleEndTimeChange: (e: React.ChangeEvent<HTMLInputElement>) => void;
-  addOrUpdateEvent: () => void;
-}
-
-export const EventFormPanel = ({ formProps }: { formProps: FormProps }) => {
+export const EventFormPanel = ({ formProps }) => {
   const {
     title,
     setTitle,
@@ -194,7 +162,7 @@ export const EventFormPanel = ({ formProps }: { formProps: FormProps }) => {
             <FormLabel id="repeat-type">반복 유형</FormLabel>
             <Select
               labelId="repeat-type"
-              id="repeat-type"
+              id="repeat-type-select"
               size="small"
               value={repeatType}
               onChange={(e) => setRepeatType(e.target.value as RepeatType)}
@@ -214,7 +182,6 @@ export const EventFormPanel = ({ formProps }: { formProps: FormProps }) => {
                 type="number"
                 value={repeatInterval}
                 onChange={(e) => setRepeatInterval(Number(e.target.value))}
-                inputProps={{ min: 1 }}
               />
             </FormControl>
             <FormControl fullWidth>
@@ -225,7 +192,6 @@ export const EventFormPanel = ({ formProps }: { formProps: FormProps }) => {
                 type="date"
                 value={repeatEndDate}
                 onChange={(e) => setRepeatEndDate(e.target.value)}
-                inputProps={{ max: '2025-10-30' }}
               />
             </FormControl>
           </Stack>
